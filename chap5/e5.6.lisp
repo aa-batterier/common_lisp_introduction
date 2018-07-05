@@ -36,24 +36,13 @@
 	(t (apply #'+ l))))
 
 ; F)
-; I'm not happy with this implementation of concat because you need to send in
-; the reverse list of the two lists which will be concatenated, but it works
-; if you use reverse on the lists before sending them in to the function.
-(defun concat (l1 l2 l3)
-  "Concatenate two lists into the third, the list will need to send in in reverse order."
-  (if l2
-    (concat l1 (rest l2) (cons (first l2) l3))
-    (if l1
-      (concat (rest l1) nil (cons (first l1) l3))
-      l3)))
-
 (defun craps ()
   "Throws the dice and returns the result."
   (let* ((dice-value (throw-dice))
 	 (result (cond ((instant-loss-p dice-value) (list (say-throw dice-value) '-- 'you 'lose))
 		       ((instant-win-p dice-value) (list (say-throw dice-value) '-- 'you 'win))
 		       (t (list 'your 'point 'is (apply #'+ dice-value))))))
-    (concat (reverse (list 'throw (first dice-value) 'and (second dice-value) '--)) (reverse result) nil)))
+    (append (list 'throw (first dice-value) 'and (second dice-value) '--) result)))
 
 ; G)
 (defun try-for-point (old-dice)
@@ -62,4 +51,4 @@
 	 (result (cond ((equal (apply #'+ new-dice) old-dice) (list (say-throw new-dice) '-- 'you 'win))
 		       ((equal (apply #'+ new-dice) 7) (list (say-throw new-dice) '-- 'you 'lose))
 		       (t (list (apply #'+ new-dice) '-- 'throw 'again)))))
-    (concat (reverse (list 'throw (first new-dice) 'and (second new-dice) '--)) (reverse result) nil)))
+    (append (list 'throw (first new-dice) 'and (second new-dice) '--) result)))
