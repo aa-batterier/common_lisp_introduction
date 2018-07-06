@@ -1,7 +1,7 @@
 ; Program which simulate the creature Nerdus Americanis (Computerus Hackerus).
 
 ; A)
-(setf nerd-states '((sleeping eating)
+(defvar nerd-states '((sleeping eating)
 		    (eating waiting-for-a-computer)
 		    (waiting-for-a-computer programming)
 		    (programming debugging)
