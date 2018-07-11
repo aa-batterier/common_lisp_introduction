@@ -75,3 +75,9 @@
 ; J)
 (defun description-with-help-functions (b)
   (reduce #'append (desc2 b)))
+
+; L)
+(defun add-description (des)
+  "The input should be '(name-of-block type description)"
+  (let ((new-database (cons des database)))
+    (setf database new-database)))
