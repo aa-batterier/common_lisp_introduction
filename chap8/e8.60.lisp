@@ -44,13 +44,13 @@
   (second (parents name)))
 
 (defun children (name)
-  (remove-if #'not (mapcar #'(lambda (child)
+  (if name (remove-if #'not (mapcar #'(lambda (child)
 			       (let ((far (second child))
 				     (mor (third child)))
 				 (if (or (equal name far)
 					 (equal name mor))
 				   (first child)
-				   nil))) family)))
+				   nil))) family))))
 
 (defun children-recursive (name)
   (real-children-recursive name family))
