@@ -103,7 +103,7 @@
 (defun real-ancestors (name)
   (cond ((not name) nil)
 	((atom name) (cons name (real-ancestors (parents name))))
-	(t (append (real-ancestors (car name))
+	(t (union (real-ancestors (car name))
 		   (real-ancestors (cdr name))))))
 
 ; H)
