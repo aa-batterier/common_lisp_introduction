@@ -90,6 +90,12 @@
 	(t (or (descended-from (car person) ancestor)
 	       (descended-from (cdr person) ancestor)))))
 
+(defun descended-from-v2 (person ancestor)
+  (cond ((null person) nil)
+	((equal person ancestor) t)
+	(t (or (descended-from-v2 (father person) ancestor)
+	       (descended-from-v2 (mother person) ancestor)))))
+
 ; G)
 (defun ancestors (name)
   (rest (real-ancestors name)))
@@ -101,10 +107,11 @@
 		   (real-ancestors (cdr name))))))
 
 ; H)
-; This function not yet done.
 (defun generation-gap (person ancestor)
-  (cond ((not person) 0)
-	((equal person ancestor) 0)
-	((atom person) (+ 1 (generation-gap (parents person) ancestor)))
-	(t (+ (generation-gap (car person) ancestor)
-	       (generation-gap (cdr person) ancestor)))))
+  (real-generation-gap person ancestor 0))
+
+(defun real-generation-gap (tree ancestor deep)
+  (cond ((null tree) nil)
+	((equal tree ancestor) deep)
+	(t (or (real-generation-gap (father tree) ancestor (+ deep 1))
+	       (real-generation-gap (mother tree) ancestor (+ deep 1))))))
