@@ -3,5 +3,5 @@
   (if (zerop bottles)
     (format t "~&No more bottles of beer on the wall,~%Time to plunder and ravage the seas!")
     (progn
-      (format t "~&~S bottles of beer on the wall,~%~S bottles of beer!~%Take one down,~%Pass it around,~%" bottles)
+      (format t "~&~S bottles of beer on the wall,~%~S bottles of beer!~%Take one down,~%Pass it around,~%" bottles bottles)
       (ninety-nine-bottles (1- bottles)))))
