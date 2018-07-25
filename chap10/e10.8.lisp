@@ -107,6 +107,9 @@
 (defun choose-best-move (board)
   (or (make-three-in-a-row board)
       (block-opponent-win board)
+      ; D)
+      (block-squeeze-play board)
+      (block-two-on-one board)
       (random-move-strategy board)))
 
 (defun random-move-strategy (board)
@@ -146,12 +149,18 @@
 
 ; Program that blocks squeeze and two-on-one attacks.
 
+(defun remove-unnecessary (important board)
+  "Returns a list with only the important positions left (specified in the important list) from the board list."
+  (if (null important) nil
+    (cons (nth (first important) board) (remove-unnecessary (rest important) board))))
+
 ; A)
 (defvar *corners* '(1 3 7 9))
 
 (defvar *sides* '(2 4 6 8))
 
 ; B)
+; This is a super ugly function, need to improve it.
 (defun block-squeeze-play (board)
   (if (or (and (equal (first board) 1)
 	       (equal (fifth board) 10)
@@ -163,13 +172,46 @@
 		       (equal (nth pos board) 0))
 		   *sides*) "Blocking squeeze play.")))
 
-; C)
-(defun partition-by (n l)
-  (labels ((help (iterate max-value the-list sub-list)
-	     (cond ((null the-list) (list (reverse sub-list)))
-		   ((equal iterate max-value) (help (1+ iterate) max-value the-list sub-list))
-		   ((< iterate max-value) (help (1+ iterate) max-value (rest the-list) (cons (first the-list) sub-list)))
-		   (t (cons (reverse sub-list) (help 0 max-value the-list nil))))))
-    (help 0 n l nil)))
+(defun block-squeeze-play-v2 (board)
+  (let ((one-nine (remove-unnecessary '(1 5 9) board))
+	(three-seven (remove-unnecessary '(3 5 7) board))
+	(squeeze '(1 10 1)))
+    (if (or (equal squeeze one-nine)
+	    (equal squeeze three-seven))
+      (list (find-if #'(lambda (pos)
+			 (equal (nth pos board) 0))
+		     *sides*) "Blocking squeeze play."))))
 
-;(defun block-two-on-one (board)
+; C)
+; This is a super ugly function, need to improve it.
+(defun block-two-on-one (board)
+  (if (or (and (equal (first board) 1)
+	       (equal (fifth board) 1)
+	       (equal (ninth board) 10))
+	  (and (equal (first board) 10)
+	       (equal (fifth board) 1)
+	       (equal (ninth board) 1))
+	  (and (equal (third board) 1)
+	       (equal (fifth board) 1)
+	       (equal (seventh board) 10))
+	  (and (equal (third board) 10)
+	       (equal (fifth board) 1)
+	       (equal (seventh board) 1)))
+    (list (find-if #'(lambda (pos)
+		       (equal (nth pos board) 0))
+		   *corners*) "Blocking two-on-one play.")))
+
+(defun block-two-on-one-v2 (board)
+  (let ((high-low '(10 1 1))
+	(low-high '(1 1 10))
+	(one-nine (remove-unnecessary '(1 5 9) board))
+	(three-seven (remove-unnecessary '(3 5 7) board)))
+    (if (or (equal high-low one-nine)
+	    (equal high-low three-seven)
+	    (equal low-high one-nine)
+	    (equal low-high three-seven))
+      (list (find-if #'(lambda (pos)
+			 (equal (nth pos board) 0))
+		     *corners*) "Blocking two-on-one play."))))
+
+; E)
