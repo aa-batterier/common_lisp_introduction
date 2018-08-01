@@ -52,18 +52,95 @@
 ; D)
 ; Function REPLACE-SUBLIST replaces a sublist.
 (defun replace-sublist (sub1 sub2 the-list)
+  "Replace sub2 with sub1 in the list."
+  (cond ((null the-list) nil)
+	((equal sub2 (first the-list)) (cons sub1 (replace-sublist sub1 sub2 (rest the-list))))
+	(t (cons (first the-list) (replace-sublist sub1 sub2 (rest the-list))))))
 
 ; The iterative version of COUNT-BASES.
 (defun count-bases (strand)
   (labels ((update-result (element result)
 	     (let* ((update-from (assoc element result))
 		    (update-to (list (first update-from) (1+ (second update-from)))))
-	       (setf result (substitute update-to update-from result)))))
+	       (replace-sublist update-to update-from result))))
+;	       (replace result (list update-to)))))
     (do* ((the-strand strand (rest the-strand))
 	  (element (first the-strand) (first the-strand))
 	  (result '((a 0) (t 0) (g 0) (c 0))))
          ((null the-strand) result)
       (cond ((consp element)
 	     (dolist (inner-element element)
-	       (update-result inner-element result)))
-	    ((atom element) (update-result element result))))))
+	       (setf result (update-result inner-element result))))
+	    ((atom element) (setf result (update-result element result)))))))
+
+; E)
+; The iterative version of PREFIXP.
+(defun prefixp (strand1 strand2)
+  (do ((prefix strand1 (rest prefix))
+       (post strand2 (rest post)))
+      ((null prefix) t)
+    (if (not (equal (first prefix) (first post))) (return nil))))
+
+; The recursive version of PREFIXP.
+(defun prefixp-v2 (prefix post)
+  (cond ((null prefix) t)
+	((not (equal (first prefix) (first post))) nil)
+	(t (prefixp-v2 (rest prefix) (rest post)))))
+
+; F)
+; The iterative version of APPEARSP.
+(defun appearsp (sub-list the-list)
+  (let ((the-length (length the-list))
+	(sub-length (length sub-list)))
+    (dotimes (i the-length)
+      (cond ((> (+ i sub-length) the-length)  (return nil))
+	    ((equal sub-list (subseq the-list i (+ i sub-length))) (return t))))))
+
+; The recursive version of APPEARSP.
+(defun appearsp-v2 (sub-list the-list)
+  (let ((sub-length (length sub-list))
+	(the-length (length the-list)))
+    (cond ((or (null the-list) (> sub-length the-length)) nil)
+	  ((equal sub-list (subseq the-list 0 sub-length)) t)
+	  (t (appearsp-v2 sub-list (rest the-list))))))
+
+; G)
+; The interative version of COVERP.
+(defun coverp (sub-list l2)
+  (do ((sub-length (length sub-list))
+       (the-length (length l2) (length the-list))
+       (the-list l2))
+      ((or (null sub-list)
+	   (> sub-length the-length)
+	   (not (equal sub-list (subseq the-list 0 sub-length)))) nil)
+    (if (equal sub-length the-length)
+      (return t)
+      (setf the-list (subseq the-list sub-length the-length)))))
+
+; The recursive version of COVERP.
+(defun coverp-v2 (sub-list the-list)
+  (let ((sub-length (length sub-list))
+	(the-length (length the-list)))
+    (cond ((or (null sub-list)
+	       (> sub-length the-length)
+	       (not (equal sub-list (subseq the-list 0 sub-length)))) nil)
+	  ((equal sub-length the-length) t)
+	  (t (coverp-v2 sub-list (subseq the-list sub-length the-length))))))
+
+; H)
+; The iterative version of PREFIX.
+(defun prefix (leftmost strand)
+  (do* ((iterate 0 (1+ iterate))
+        (result (list (nth iterate strand)) (cons (nth iterate strand) result)))
+       ((equal iterate (1- leftmost)) (reverse result))))
+
+; The applicative version of PREFIX.
+(defun prefix-v2 (leftmost strand)
+  (reverse (nthcdr (1- leftmost) (reverse strand))))
+
+; The recursive verison of PREFIX.
+(defun prefix-v3 (leftmost strand)
+  (labels ((help (iterate)
+	     (if (equal iterate leftmost) nil
+	       (cons (nth iterate strand) (help (1+ iterate))))))
+    (help 0)))
