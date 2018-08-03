@@ -7,6 +7,8 @@
   (condition 'green)
   (speed 0))
 
+(defvar enterprise (make-starship :name "Enterptise"))
+
 ; Struct for CAPTAIN.
 (defstruct (captain
 	     (:print-function print-captain))
@@ -19,9 +21,7 @@
 		:age 35
 		:ship enterprise))
 
-(defvar enterprise (make-starship
-		     :captain james
-		     :name 'enterprise))
+(setf (starship-captain enterprise) james)
 
 (defun print-starship (x stream depth)
   (format stream "#<STARSHIP ~A>" (starship-name x)))
