@@ -30,8 +30,9 @@
 	(iterate 0 (1+ iterate))
 	(decipher (gethash (aref str iterate) *decipher-table*)))
        ((>= iterate str-length) str-space)
+    ;(format t "~&~S is of type ~S.~%" decipher (type-of decipher))
     (if decipher
-      (setf str-space (replace str-space decipher :start1 (1- iterate) :end1 iterate)))
+      (setf (char str-space iterate) decipher))
     (setf decipher (gethash (aref str iterate) *decipher-table*))))
 
 ; F)
