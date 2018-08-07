@@ -15,7 +15,7 @@
 
 ; C)
 (defun undo-substitution (c)
-  (setf (gethash c (gethash c *decipher-table*) *encipher-table*) nil)
+  (setf (gethash (gethash c *decipher-table*) *encipher-table*) nil)
   (setf (gethash c *decipher-table*) nil))
 
 ; D)
@@ -27,13 +27,11 @@
 (defun decipher-string (str)
   (do* ((str-length (length str))
 	(str-space (make-string str-length :initial-element #\Space))
-	(iterate 0 (1+ iterate))
-	(decipher (gethash (aref str iterate) *decipher-table*)))
+	(iterate 0 (1+ iterate)))
        ((>= iterate str-length) str-space)
-    ;(format t "~&~S is of type ~S.~%" decipher (type-of decipher))
-    (if decipher
-      (setf (char str-space iterate) decipher))
-    (setf decipher (gethash (aref str iterate) *decipher-table*))))
+    (let ((decipher (gethash (aref str iterate) *decipher-table*)))
+      (when decipher
+	(setf (aref str-space iterate) decipher)))))
 
 ; F)
 (defun show-line (line)
@@ -41,8 +39,10 @@
 
 ; G)
 (defun show-text (cryptogram)
+  (format t "~&--------------------~%")
   (dolist (element cryptogram)
-    (show-line element)))
+    (show-line element))
+  (format t "~&--------------------~%"))
 
 ; H)
 (defun get-first-char (x)
@@ -61,31 +61,37 @@
   (let ((ifexist (gethash c *decipher-table*))
 	(input nil))
     (if ifexist
-      (format t "~&'~S' has already been deciphers as '~S'!~%" c ifexist)
+      (format t "~&'~A' has already been deciphers as '~A'!~%" c ifexist)
       (progn
-	(format t "~&What does '~S' decipher to?" c)
-	(setf input (read))
+	(format t "~&What does '~A' decipher to? " c)
+	(setf input (read-letter))
 	(if (gethash input *encipher-table*)
-      	  (format t "~&But '~S' already deciphers to '~S'!~%" c input)
+      	  (format t "~&But '~A' already deciphers to '~A'!~%" c input)
 	  (make-substitution input c))))))
 
 ; K)
 (defun undo-letter ()
-  (format t "~&Undo which letter?")
-  (let ((input (read)))
+  (format t "~&Undo which letter? ")
+  (let ((input (read-letter)))
     (if (gethash input *decipher-table*)
       (undo-substitution input)
-      (format t "~&Can't undo '~S' becuase it has not been assigned yet!~%" input))))
+      (format t "~&Can't undo '~A' becuase it has not been assigned yet!~%" input))))
 
 ; L)
-(defun solve (cryptogram)
-  (show-text cryptogram)
-  (format t "Substitute which letter?")
+(defun solve ()
+  (show-text *crypto-text*)
+  (format t "Substitute which letter? ")
   (do ((input (read-letter) (read-letter)))
       ((equal input 'end) t)
     (cond ((equal input 'undo) (undo-letter))
 	  ((characterp input)
-	   (sub-letter input)
-	   (show-text cryptogram)
-	   (format t "Substitute which letter?"))
-	  (t (format t "~&Wrong input! Try again.~%")))))
+	   (sub-letter input))
+	  (t (format t "~&Wrong input! Try again.~%")))
+    (show-text *crypto-text*)
+    (format t "Substitute which letter? ")))
+
+; M)
+#|
+Solution to the cryptogram:
+It is better to remain silent and be thought a fool than to speak and remove all doubt.
+|#
