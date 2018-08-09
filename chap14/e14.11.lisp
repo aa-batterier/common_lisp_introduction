@@ -64,7 +64,7 @@
 
 (defun fsm (&optional (starting-point 'start))
   (setf *current-node* (find-node starting-point))
-  (do ((i nil)) ;(nil)
+  (do ()
       ((null (node-outputs *current-node*)))
     (one-transition)))
 
